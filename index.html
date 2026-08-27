@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KYKOLOGY™ Leadership Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Core Brand Variables from Superpower Stack[span_7](start_span)[span_7](end_span) */
+:root {
+  --ink: #0B1F3A; --teal: #006D77; --gold: #C98A00; --softgold: #D8BC7C;
+  --softteal: #83C5BE; --lightblue: #8FCBFF; --beige: #F5EBD7;
+  --grey1: #F2F2F2; --grey6: #9E9E9E; --grey10: #616161; --white: #fff;
+  --maxw: 1120px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  color: var(--ink); background: var(--white);
+  font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, .serif { font-family: 'Merriweather', Georgia, serif; font-weight: 700; line-height: 1.22; }
+.eyebrow { font-weight: 600; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--softgold); }
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* Landing Hero */
+.dhero { background: linear-gradient(160deg,#0B1F3A 0%,#0e2647 55%,#0B1F3A 100%); color: #fff; padding: 60px 0; }
+.freetext, .ctxselect { width: 100%; font-family: 'Montserrat', sans-serif; font-size: 16px; padding: 14px 16px; border: 1.5px solid #d8dee6; border-radius: 12px; margin-bottom: 16px; }
+.btn-primary { border: 0; background: var(--gold); color: #fff; font-weight: 700; font-size: 15px; padding: 15px 26px; border-radius: 99px; cursor: pointer; margin-top: 10px; width: 100%; max-width: 320px; }
+.btn-primary:hover { background: #b07800; }
+
+/* Assessment Stage */
+.stage { max-width: 760px; margin: 0 auto; padding: 40px 20px; text-align: center; }
+.qtext { font-family: 'Merriweather', serif; font-size: 22px; margin-bottom: 30px; }
+.opts { display: flex; flex-direction: column; gap: 10px; max-width: 560px; margin: 0 auto; text-align: left; }
+.opt { border: 1.5px solid #e2e2e2; border-radius: 13px; padding: 14px; cursor: pointer; transition: all .15s ease; background: #fff; font-size: 15px; }
+.opt:hover { border-color: var(--softteal); }
+.opt.sel { border-color: var(--teal); background: #f2fafa; font-weight: 600; }
+.navrow { display: flex; gap: 14px; justify-content: center; margin-top: 40px; }
+.btn-next { background: var(--ink); color: #fff; border-radius: 12px; padding: 15px 44px; border: none; font-weight: 700; cursor: pointer; }
+.btn-next:disabled { background: var(--grey1); color: var(--grey6); cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<!-- LANDING PAGE (Profile Metadata)[span_8](start_span)[span_8](end_span) -->
+<div class="view active" id="v-landing">
+  <section class="dhero">
+    <div class="wrap">
+      <p class="eyebrow">KYKOLOGY™ Leadership Intelligence</p>
+      <h1>Understand People Better.<br>Unlock Human Potential.</h1>
+      <p style="color:#c9d3e0; max-width: 600px;">This assessment is designed for leadership development and reflection. It is not a clinical assessment, a fixed leadership type, or a standalone employment decision tool.</p>
+      
+      <div style="background: rgba(255,255,255,0.1); padding: 24px; border-radius: 16px; max-width: 500px; margin-top: 30px;">
+        <input type="text" id="pName" class="freetext" placeholder="Your name (Required)">
+        <input type="text" id="pTitle" class="freetext" placeholder="Current role / job title (Required)">
+        <input type="text" id="pOrg" class="freetext" placeholder="Organisation (Optional)">
+        <button class="btn-primary" onclick="startContext()">Begin Discovery</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CONTEXT & ASSESSMENT STAGE[span_9](start_span)[span_9](end_span)[span_10](start_span)[span_10](end_span) -->
+<div class="view" id="v-assess">
+  <div class="stage">
+    <p class="eyebrow" id="section-label">Leadership Context</p>
+    <p class="qtext" id="q-prompt"></p>
+    
+    <div class="opts" id="q-options">
+      <!-- Options injected via JS -->
+    </div>
+    
+    <div class="navrow">
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>Continue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// DATA PAYLOADS[span_11](start_span)[span_11](end_span)
+const contextQuestions = [
+  {
+    id: "CTX01",
+    question: "Which best describes your current leadership scope?",
+    options: ["Emerging", "Frontline", "Manager", "Senior leader", "Executive", "C-suite or equivalent", "Founder-owner", "Board or governance"]
+  },
+  {
+    id: "CTX02",
+    question: "How many years have you held roles where you were responsible for guiding people, decisions or outcomes?",
+    options: ["Less than 1", "1–3", "4–7", "8–15", "16+"]
+  }
+  // Note: Remaining 10 context questions arrayed here for full production.
+];
+
+const assessmentQuestions = [
+  {
+    id: "L-H-SA1",
+    layer: "Healthy",
+    prompt: "I consistently follow through on the goals and commitments I set for myself.",
+    anchors: ["1 - Not at all like me", "2", "3", "4 - Neutral", "5", "6", "7 - Very much like me"]
+  },
+  {
+    id: "L-D01",
+    layer: "Dynamic",
+    prompt: "Compared with my usual approach, when my authority is challenged publicly I become:",
+    anchors: ["1 - Much less likely to assert", "2", "3", "4 - About the same", "5", "6", "7 - Much more likely to assert"]
+  },
+  {
+    id: "L-R01",
+    layer: "Pressure / Risk",
+    prompt: "When time is tight and others are moving slowly, I may take over decisions that they could reasonably make themselves.",
+    anchors: ["1 - Rarely like me", "2", "3", "4 - Neutral", "5", "6", "7 - Very much like me"]
+  }
+  // Note: Remaining 65 assessment items arrayed here for full production.
+];
+
+// STATE MANAGEMENT
+let currentState = "landing"; // 'landing', 'context', 'assessment'
+let currentIndex = 0;
+let userResponses = {};
+
+function switchView(viewId) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+}
+
+function startContext() {
+  const name = document.getElementById('pName').value;
+  const title = document.getElementById('pTitle').value;
+  
+  if(!name || !title) {
+    alert("Please provide your name and job title to continue.");
+    return;
+  }
+  
+  userResponses.metadata = { name, title, org: document.getElementById('pOrg').value };
+  currentState = "context";
+  currentIndex = 0;
+  switchView('v-assess');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const promptEl = document.getElementById('q-prompt');
+  const optsEl = document.getElementById('q-options');
+  const labelEl = document.getElementById('section-label');
+  const btnNext = document.getElementById('btn-next');
+  
+  optsEl.innerHTML = '';
+  btnNext.disabled = true;
+  
+  if (currentState === "context") {
+    const q = contextQuestions[currentIndex];
+    labelEl.innerText = `Leadership Context (${currentIndex + 1} of 12)`;
+    promptEl.innerText = q.question;
+    
+    q.options.forEach((opt, idx) => {
+      const div = document.createElement('div');
+      div.className = 'opt';
+      div.innerText = opt;
+      div.onclick = () => selectOption(div, q.id, opt);
+      optsEl.appendChild(div);
+    });
+  } 
+  else if (currentState === "assessment") {
+    const q = assessmentQuestions[currentIndex];
+    // Rule: Do not expose Response Quality; enforce Dynamic/Pressure UI[span_12](start_span)[span_12](end_span)
+    let displayLayer = q.layer === "Response Quality" ? "Leadership Assessment" : q.layer;
+    
+    labelEl.innerText = `${displayLayer} (${currentIndex + 1} of 68)`;
+    promptEl.innerText = q.prompt;
+    
+    q.anchors.forEach((opt, idx) => {
+      const div = document.createElement('div');
+      div.className = 'opt';
+      div.innerText = opt;
+      div.onclick = () => selectOption(div, q.id, idx + 1);
+      optsEl.appendChild(div);
+    });
+  }
+}
+
+function selectOption(el, questionId, value) {
+  document.querySelectorAll('.opt').forEach(opt => opt.classList.remove('sel'));
+  el.classList.add('sel');
+  userResponses[questionId] = value;
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (currentState === "context") {
+    currentIndex++;
+    if (currentIndex >= contextQuestions.length) {
+      currentState = "assessment";
+      currentIndex = 0;
+    }
+    renderQuestion();
+  } 
+  else if (currentState === "assessment") {
+    currentIndex++;
+    if (currentIndex >= assessmentQuestions.length) {
+      finishAssessment();
+    } else {
+      renderQuestion();
+    }
+  }
+}
+
+function finishAssessment() {
+  document.getElementById('v-assess').innerHTML = `
+    <div class="stage">
+      <p class="eyebrow">Processing Complete</p>
+      <h2>Thank you, ${userResponses.metadata.name}.</h2>
+      <p>Transitioning to your KYKOLOGY™ Leadership Intelligence report...</p>
+      <button class="btn-primary" onclick="loadReportPhase2()">View Report</button>
+    </div>
+  `;
+  console.log("Final Payload:", userResponses);
+}
+
+function loadReportPhase2() {
+  alert("Phase 2 Triggered: This will load the Adam Lim synthetic report fixture.");
+  // Phase 2 Renderer logic will attach here.
+}
+</script>
+</body>
+</html>
